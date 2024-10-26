@@ -41,11 +41,11 @@ class DBHelper {
     await db.insert('roles', {'name': 'admin'});
     await db.insert('roles', {'name': 'user'});
 
-    await db.insert(
-        'users', {'username': 'admin', 'password': 'admin123', 'role_id': 1});
+    await db.insert('users',
+        {'username': 'AdminFelix', 'password': 'admin123', 'role_id': 1});
 
-    await db.insert(
-        'users', {'username': 'user', 'password': 'user123', 'role_id': 2});
+    await db.insert('users',
+        {'username': 'UserFelix', 'password': 'user123', 'role_id': 2});
   }
 
   Future<int> createUser(String username, String password, int roleId) async {
@@ -84,5 +84,34 @@ class DBHelper {
     } else {
       return null;
     }
+  }
+
+  Future<int> updatePassword(String username, String newPassword) async {
+    final db = await instance.database;
+    return await db.update(
+      'users',
+      {'password': newPassword},
+      where: 'username = ?',
+      whereArgs: [username],
+    );
+  }
+
+  Future<int> updateUsername(String currentUsername, String newUsername) async {
+    final db = await instance.database;
+    return await db.update(
+      'users',
+      {'username': newUsername},
+      where: 'username = ?',
+      whereArgs: [currentUsername],
+    );
+  }
+
+  Future<int> deleteUser(String username) async {
+    final db = await instance.database;
+    return await db.delete(
+      'users',
+      where: 'username = ?',
+      whereArgs: [username],
+    );
   }
 }

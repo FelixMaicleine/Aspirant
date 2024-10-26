@@ -60,7 +60,7 @@ class _RegisterState extends State<Register> {
     });
 
     bool isUsernameValid = _usernameController.text.isNotEmpty;
-if (!isUsernameValid) {
+    if (!isUsernameValid) {
       setState(() {
         _usernameErrorText = 'Username can`t be empty';
       });
@@ -130,14 +130,13 @@ if (!isUsernameValid) {
 
     try {
       await DBHelper.instance.createUser(
-        _usernameController.text, 
-        _passwordController.text, 
-        2, 
+        _usernameController.text,
+        _passwordController.text,
+        2,
       );
 
       Navigator.pop(context);
 
-      
       final snackBar = SnackBar(
         content: Text(
           'Your account has been created successfully. Try logging in with your new account.',
@@ -148,16 +147,14 @@ if (!isUsernameValid) {
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
-      
       Navigator.pushNamedAndRemoveUntil(
         context,
-        '/',
-        ModalRoute.withName('/'),
+        '/login',
+        (route) => false,
       );
     } catch (e) {
-      Navigator.pop(context); 
+      Navigator.pop(context);
 
-      
       final snackBar = SnackBar(
         content: Text(
           'An error occurred while creating your account. Please try again.',

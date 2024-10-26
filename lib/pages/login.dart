@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:aspirant/provider/theme.dart';
 import 'package:aspirant/services/db_helper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -57,20 +58,21 @@ class _LoginState extends State<Login> {
       Navigator.pop(context);
 
       if (user != null) {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('username', username);
         final role = await DBHelper.instance.getRoleById(user['role_id']);
         if (role != null) {
+          
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setBool('isLoggedIn', true);
+          await prefs.setInt('roleId', user['role_id']); 
+
           if (role['name'] == 'admin') {
             Navigator.pushNamedAndRemoveUntil(
-              context,
-              '/homeadmin',
-              (route) => false,
-            );
+                context, '/homeadmin', (route) => false);
           } else if (role['name'] == 'user') {
             Navigator.pushNamedAndRemoveUntil(
-              context,
-              '/homeuser',
-              (route) => false,
-            );
+                context, '/homeuser', (route) => false);
           }
           _showSnackBar(context, 'Login Success as ${role['name']}',
               backgroundColor: Colors.green);

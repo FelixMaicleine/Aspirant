@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:aspirant/provider/theme.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeAdmin extends StatefulWidget {
   const HomeAdmin({super.key});
@@ -10,20 +11,34 @@ class HomeAdmin extends StatefulWidget {
 }
 
 class _HomeAdminState extends State<HomeAdmin> {
+  String _username = '';
+  @override
+  void initState() {
+    super.initState();
+    _loadUsername(); 
+  }
+
+  Future<void> _loadUsername() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _username = prefs.getString('username') ?? 'User'; 
+    });
+  }
+
+  Future<void> logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isLoggedIn', false);
+    await prefs.remove('roleId'); 
+    Navigator.pushReplacementNamed(
+        context, '/login'); 
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     bool isDarkMode = themeProvider.themeMode == ThemeMode.dark;
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios,
-          ),
-          onPressed: () {
-            Navigator.pushNamed(context, '/');
-          },
-        ),
         title: Text("Aspirant Fresh"),
         centerTitle: true,
         actions: [
@@ -37,6 +52,84 @@ class _HomeAdminState extends State<HomeAdmin> {
             },
           ),
         ],
+      ),
+      drawer: Drawer(
+        child: Container(
+            color: isDarkMode ? Colors.grey.shade900 : Colors.white,
+            child: Column(
+              children: [
+                Expanded(
+                  child: ListView(
+                    padding: EdgeInsets.zero,
+                    children: <Widget>[
+                      Container(
+                        height: 190,
+                        child: DrawerHeader(
+                          decoration: BoxDecoration(
+                            color: isDarkMode
+                                ? Colors.green.shade900
+                                : Colors.green,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CircleAvatar(
+                                radius: 40.0,
+                                backgroundColor: Colors.white,
+                                child: Icon(
+                                  Icons.person,
+                                  size: 50.0,
+                                  color: Colors.green,
+                                ),
+                              ),
+                              SizedBox(height: 10),
+                              Text(
+                                _username, 
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      ListTile(
+                        leading: Icon(
+                          Icons.person,
+                        ),
+                        title: Text(
+                          'Profile',
+                        ),
+                        onTap: () {
+                          Navigator.pushNamed(context, '/profile');
+                        },
+                      ),
+                      ListTile(
+                        leading: Icon(
+                          Icons.settings,
+                        ),
+                        title: Text(
+                          'Settings',
+                        ),
+                        onTap: () {},
+                      ),
+                    ],
+                  ),
+                ),
+                ListTile(
+                  leading: Icon(
+                    Icons.logout,
+                  ),
+                  title: Text(
+                    'Logout',
+                  ),
+                  onTap: () {
+                    logout();
+                  },
+                ),
+              ],
+            )),
       ),
       body: SingleChildScrollView(
         child: Padding(

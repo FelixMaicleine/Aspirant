@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:aspirant/provider/theme.dart';
+import 'package:aspirant/services/db_helper.dart';
 
 class Change extends StatefulWidget {
   const Change({super.key});
@@ -10,21 +11,21 @@ class Change extends StatefulWidget {
 }
 
 class _Change extends State<Change> {
-  void _showSnackBar(BuildContext context) {
-    final snackBar = SnackBar(
-      content: Text('Please use strong password!',style: TextStyle(color: Colors.white),),
-      backgroundColor: Colors.red,
-      duration: Duration(seconds: 1),
-    );
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  }
-
+  String _username = ''; 
   String _newPasswordErrorText = '';
   String _confirmPasswordErrorText = '';
   String _newPassword = '';
   String _confirmPassword = '';
-
   bool _isButtonEnabled = false;
+
+  void _showSnackBar(BuildContext context, String message, Color color) {
+    final snackBar = SnackBar(
+      content: Text(message, style: TextStyle(color: Colors.white)),
+      backgroundColor: color,
+      duration: Duration(seconds: 1),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
 
   String? _validatePassword(String value) {
     if (value.isEmpty) {
@@ -50,14 +51,14 @@ class _Change extends State<Change> {
 
   void _updateButtonStatus() {
     setState(() {
-      _isButtonEnabled = _validatePassword(_newPassword) == null &&
-          _validatePassword(_confirmPassword) == null &&
+      _isButtonEnabled = _username.isNotEmpty &&
+          _validatePassword(_newPassword) == null &&
           _newPassword == _confirmPassword;
     });
   }
 
   void _handleChangePassword() async {
-    if (_validatePassword(_newPassword) == null) {
+    if (_validatePassword(_newPassword) == null && _username.isNotEmpty) {
       if (_newPassword == _confirmPassword) {
         showDialog(
           context: context,
@@ -85,27 +86,21 @@ class _Change extends State<Change> {
 
         Navigator.pop(context);
 
-        final snackBar = SnackBar(
-          content: Text(
-              'Your passsword has been changed successfully. Try logging in with your new password.',style: TextStyle(color: Colors.white),),
-          backgroundColor: Colors.green,
-          duration: Duration(seconds: 3),
-        );
+        final dbHelper = DBHelper.instance;
+        final rowsAffected =
+            await dbHelper.updatePassword(_username, _newPassword);
 
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          '/',
-          ModalRoute.withName('/'),
-        );
+        if (rowsAffected > 0) {
+          _showSnackBar(context, 'Password has been changed successfully', Colors.green);
+          Navigator.pushNamedAndRemoveUntil(context, '/', ModalRoute.withName('/'));
+        } else {
+          _showSnackBar(context, 'Username not found', Colors.red);
+        }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Password and confirm password do not match'),
-          ),
-        );
+        _showSnackBar(context, 'Passwords do not match', Colors.red);
       }
+    } else {
+      _showSnackBar(context, 'Please fill in all fields correctly', Colors.red);
     }
   }
 
@@ -133,136 +128,153 @@ class _Change extends State<Change> {
       body: Center(
         child: Container(
           padding: EdgeInsets.all(10),
-          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Row(
-              children: [
-                Text(
-                  'New password',
-                  style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Expanded(
-                    child: TextField(
-                  onChanged: (value) {
-                    _newPassword = value;
-                    _newPasswordErrorText = _validatePassword(value) ??
-                        ''; 
-                    _updateButtonStatus(); 
-                    setState(() {}); 
-                  },
-                  obscureText: true,
-                  decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      hintText: 'Enter your new password',
-                      prefixIcon: Icon(
-                        Icons.lock_outline,
-                      )),
-                ))
-              ],
-            ),
-            Row(
-              children: [
-                Text(
-                  _newPasswordErrorText,
-                  style: TextStyle(
-                      color: Colors.red),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Text(
-                  'Confirm new password',
-                  style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Expanded(
-                    child: TextField(
-                  onChanged: (value) {
-                    _confirmPassword = value;
-                    _confirmPasswordErrorText = _newPassword == value
-                        ? ''
-                        : 'Passwords do not match'; 
-                    _updateButtonStatus(); 
-                    setState(() {}); 
-                  },
-                  obscureText: true,
-                  decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      hintText: 'Confirm your new password',
-                      prefixIcon: Icon(
-                        Icons.lock,
-                      )),
-                ))
-              ],
-            ),
-            Row(
-              children: [
-                Text(
-                  _confirmPasswordErrorText,
-                  style: TextStyle(
-                      color: Colors.red),
-                ),
-              ],
-            ),
-            SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () {
-                if (_isButtonEnabled) {
-                  _handleChangePassword();
-                } else {
-                  _showSnackBar(context); 
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green, minimumSize: Size(200, 50)),
-              child: Text(
-                'Change Password',
-                style:
-                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    'Username',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                ],
               ),
-            ),
-            SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Back to',
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      onChanged: (value) {
+                        _username = value;
+                        _updateButtonStatus();
+                      },
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          hintText: 'Enter your username',
+                          prefixIcon: Icon(Icons.person)),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 10),
+              Row(
+                children: [
+                  Text(
+                    'New password',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      onChanged: (value) {
+                        _newPassword = value;
+                        _newPasswordErrorText =
+                            _validatePassword(value) ?? '';
+                        _updateButtonStatus();
+                        setState(() {});
+                      },
+                      obscureText: true,
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          hintText: 'Enter your new password',
+                          prefixIcon: Icon(Icons.lock_outline)),
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Text(
+                    _newPasswordErrorText,
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Text(
+                    'Confirm new password',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      onChanged: (value) {
+                        _confirmPassword = value;
+                        _confirmPasswordErrorText = _newPassword == value
+                            ? ''
+                            : 'Passwords do not match';
+                        _updateButtonStatus();
+                        setState(() {});
+                      },
+                      obscureText: true,
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          hintText: 'Confirm your new password',
+                          prefixIcon: Icon(Icons.lock)),
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Text(
+                    _confirmPasswordErrorText,
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ],
+              ),
+              SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: _isButtonEnabled ? _handleChangePassword : null,
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    minimumSize: Size(200, 50)),
+                child: Text(
+                  'Change Password',
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold),
                 ),
-                TextButton(
+              ),
+              SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Back to'),
+                  TextButton(
                     onPressed: () {
                       Navigator.pushNamed(context, '/');
                     },
                     child: const Text(
                       'Login',
                       style: TextStyle(color: Colors.blue),
-                    )),
-                Text("/"),
-                TextButton(
+                    ),
+                  ),
+                  Text("/"),
+                  TextButton(
                     onPressed: () {
                       Navigator.pushNamed(context, '/register');
                     },
                     child: const Text(
                       'Register',
                       style: TextStyle(color: Colors.blue),
-                    )),
-              ],
-            )
-          ]),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
