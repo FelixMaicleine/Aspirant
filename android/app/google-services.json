@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "725455926241",
+    "project_id": "aspirantv3",
+    "storage_bucket": "aspirantv3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:725455926241:android:b4de2b5ef4417486bed8a0",
+        "android_client_info": {
+          "package_name": "com.example.aspirant"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2mtBTYAnKEt9q-1dwfu1XTGg5pSQM3so"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

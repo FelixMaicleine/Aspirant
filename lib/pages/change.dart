@@ -17,6 +17,8 @@ class _Change extends State<Change> {
   String _newPassword = '';
   String _confirmPassword = '';
   bool _isButtonEnabled = false;
+  bool _isObscured1=true;
+  bool _isObscured2=true;
 
   void _showSnackBar(BuildContext context, String message, Color color) {
     final snackBar = SnackBar(
@@ -177,13 +179,25 @@ class _Change extends State<Change> {
                         _updateButtonStatus();
                         setState(() {});
                       },
-                      obscureText: true,
+                      obscureText: _isObscured1,
                       decoration: InputDecoration(
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10.0),
                           ),
                           hintText: 'Enter your new password',
-                          prefixIcon: Icon(Icons.lock_outline)),
+                          prefixIcon: Icon(Icons.lock_outline),
+                          suffixIcon: IconButton(
+                                icon: Icon(
+                                  _isObscured1
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _isObscured1 = !_isObscured1;
+                                  });
+                                },
+                              ),),
                     ),
                   ),
                 ],
@@ -216,13 +230,25 @@ class _Change extends State<Change> {
                         _updateButtonStatus();
                         setState(() {});
                       },
-                      obscureText: true,
+                      obscureText: _isObscured2,
                       decoration: InputDecoration(
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10.0),
                           ),
                           hintText: 'Confirm your new password',
-                          prefixIcon: Icon(Icons.lock)),
+                          prefixIcon: Icon(Icons.lock),
+                          suffixIcon: IconButton(
+                                icon: Icon(
+                                  _isObscured2
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _isObscured2 = !_isObscured2;
+                                  });
+                                },
+                              ),),
                     ),
                   ),
                 ],

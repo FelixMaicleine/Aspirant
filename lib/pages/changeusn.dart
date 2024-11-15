@@ -5,6 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:aspirant/services/db_helper.dart';
 
 class UpdateUsername extends StatefulWidget {
+  const UpdateUsername({super.key});
+
   @override
   _UpdateUsernameState createState() => _UpdateUsernameState();
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:aspirant/provider/theme.dart';
 import 'package:aspirant/services/db_helper.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -11,6 +12,7 @@ class Register extends StatefulWidget {
 }
 
 class _RegisterState extends State<Register> {
+  final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   void _showSnackBar(BuildContext context) {
     final snackBar = SnackBar(
       content: Text(
@@ -28,6 +30,8 @@ class _RegisterState extends State<Register> {
   IconData _selectedIcon = Icons.person;
   bool _agreedToTerms = false;
   bool _isButtonEnabled = false;
+  bool _isObscured1 = true;
+  bool _isObscured2=true;
 
   void _updateSelectedIcon() {
     switch (_selectedGender) {
@@ -104,6 +108,7 @@ class _RegisterState extends State<Register> {
   }
 
   void _handleRegister() async {
+    String username = _usernameController.text;
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -134,6 +139,13 @@ class _RegisterState extends State<Register> {
         _passwordController.text,
         2,
       );
+
+    await FirebaseAnalytics.instance.logEvent(
+      name: 'register',
+      parameters: {
+              'username': username,  
+            },
+    );
 
       Navigator.pop(context);
 
@@ -184,6 +196,10 @@ class _RegisterState extends State<Register> {
 
   @override
   Widget build(BuildContext context) {
+    analytics.logScreenView(
+      screenName: 'Register',
+      screenClass: 'Register',
+    );
     final themeProvider = Provider.of<ThemeProvider>(context);
     bool isDarkMode = themeProvider.themeMode == ThemeMode.dark;
 
@@ -435,7 +451,7 @@ class _RegisterState extends State<Register> {
                         Expanded(
                           child: TextField(
                             controller: _passwordController,
-                            obscureText: true,
+                            obscureText: _isObscured1,
                             onChanged: (value) {
                               _validateForm();
                             },
@@ -446,6 +462,18 @@ class _RegisterState extends State<Register> {
                               hintText: 'Enter your password',
                               prefixIcon: Icon(
                                 Icons.lock_outline,
+                              ),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _isObscured1
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _isObscured1 = !_isObscured1;
+                                  });
+                                },
                               ),
                             ),
                           ),
@@ -479,7 +507,7 @@ class _RegisterState extends State<Register> {
                         Expanded(
                           child: TextField(
                             controller: _confirmPasswordController,
-                            obscureText: true,
+                            obscureText: _isObscured2,
                             onChanged: (value) {
                               _validateForm();
                             },
@@ -490,6 +518,18 @@ class _RegisterState extends State<Register> {
                               hintText: 'Confirm your password',
                               prefixIcon: Icon(
                                 Icons.lock,
+                              ),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _isObscured2
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _isObscured2 = !_isObscured2;
+                                  });
+                                },
                               ),
                             ),
                           ),

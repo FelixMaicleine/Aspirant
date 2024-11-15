@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:aspirant/provider/theme.dart';
 import 'package:aspirant/services/db_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -14,9 +16,12 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
 
   int? _staySignedIn;
   bool _agreedToTerms = false;
+  bool _isObscured=true;
 
   void _showSnackBar(BuildContext context, String message,
       {Color backgroundColor = Colors.red}) {
@@ -67,6 +72,14 @@ class _LoginState extends State<Login> {
           await prefs.setBool('isLoggedIn', true);
           await prefs.setInt('roleId', user['role_id']); 
 
+          await FirebaseAnalytics.instance.logEvent(
+            name: 'login',
+            parameters: {
+              'username': username,
+              'role': role['name'],  
+            },
+          );
+
           if (role['name'] == 'admin') {
             Navigator.pushNamedAndRemoveUntil(
                 context, '/homeadmin', (route) => false);
@@ -89,6 +102,10 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
+    analytics.logScreenView(
+      screenName: 'Login',
+      screenClass: 'Login',
+    );
     final themeProvider = Provider.of<ThemeProvider>(context);
     bool isDarkMode = themeProvider.themeMode == ThemeMode.dark;
 
@@ -117,7 +134,7 @@ class _LoginState extends State<Login> {
               _buildTextField('Username', _usernameController, Icons.person),
               SizedBox(height: 10),
               _buildTextField('Password', _passwordController, Icons.lock,
-                  obscureText: true),
+                  obscureText: _isObscured,),
               SizedBox(height: 10),
               _buildStaySignedIn(),
               _buildTermsCheckbox(),
@@ -142,29 +159,43 @@ class _LoginState extends State<Login> {
   }
 
   Widget _buildTextField(
-      String label, TextEditingController controller, IconData icon,
-      {bool obscureText = false}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        TextField(
-          controller: controller,
-          obscureText: obscureText,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            hintText: 'Enter your $label',
-            prefixIcon: Icon(icon),
+    String label, TextEditingController controller, IconData icon,
+    {bool obscureText = false}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        label,
+        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      ),
+      TextField(
+        controller: controller,
+        obscureText: obscureText,
+        decoration: InputDecoration(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
           ),
+          hintText: 'Enter your $label',
+          prefixIcon: Icon(icon),
+          // Tambahkan ikon mata pada suffixIcon untuk toggle obscureText
+          suffixIcon: label == 'Password'
+              ? IconButton(
+                  icon: Icon(
+                    _isObscured ? Icons.visibility : Icons.visibility_off,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _isObscured = !_isObscured;
+                    });
+                  },
+                )
+              : null,
         ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
+}
+
 
   Widget _buildStaySignedIn() {
     return Row(

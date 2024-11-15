@@ -5,6 +5,7 @@ import 'package:aspirant/provider/theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:aspirant/models/vegetable.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 class HomeUser extends StatefulWidget {
   const HomeUser({super.key});
@@ -16,6 +17,7 @@ class HomeUser extends StatefulWidget {
 class _HomeUserState extends State<HomeUser> {
   String _username = '';
   final String apiKey = 'c55265c1290c4aca8ed00a4e1f471fae';
+  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
   @override
   void initState() {
@@ -33,11 +35,13 @@ class _HomeUserState extends State<HomeUser> {
   Future<List<Vegetable>> fetchVegetables() async {
     final response = await http.get(
       Uri.parse(
-          'https://api.spoonacular.com/food/ingredients/search?query=vegetable&apiKey=$apiKey'),
+          'https://api.spoonacular.com/food/ingredients/search?query=vegetable&apiKey=$apiKey&number=50&offset=0'),
     );
 
     if (response.statusCode == 200) {
       final List jsonResponse = json.decode(response.body)['results'];
+      jsonResponse.removeAt(10);
+      jsonResponse.removeAt(10);
       return jsonResponse.map((data) => Vegetable.fromJson(data)).toList();
     } else {
       throw Exception('Failed to load vegetables');
@@ -53,6 +57,10 @@ class _HomeUserState extends State<HomeUser> {
 
   @override
   Widget build(BuildContext context) {
+    analytics.logScreenView(
+      screenName: 'HomeUser',
+      screenClass: 'HomeUser',
+    );
     final themeProvider = Provider.of<ThemeProvider>(context);
     bool isDarkMode = themeProvider.themeMode == ThemeMode.dark;
 
@@ -144,41 +152,39 @@ class _HomeUserState extends State<HomeUser> {
                 style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
               ),
             ),
-            Container(
-              height: 400,
-              margin: EdgeInsets.all(10),
-              child: FutureBuilder<List<Vegetable>>(
-                future: fetchVegetables(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Center(child: Text('No data found'));
-                  } else {
-                    return GridView.builder(
-                      padding: EdgeInsets.all(10),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 10,
-                        mainAxisSpacing: 10,
-                        childAspectRatio: 3.3 / 4,
-                      ),
-                      itemCount: snapshot.data!.length,
-                      itemBuilder: (context, index) {
-                        final vegetable = snapshot.data![index];
-                        return ProductCard(
-                          name: vegetable.name,
-                          imageUrl: vegetable.imageUrl,
-                          price: 5000 + (index * 1000),
-                        );
-                      },
-                    );
-                  }
-                },
-              ),
-            )
+            FutureBuilder<List<Vegetable>>(
+              future: fetchVegetables(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return Center(child: Text('No data found'));
+                } else {
+                  return GridView.builder(
+                    physics: NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    padding: EdgeInsets.all(10),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                      childAspectRatio: 3.3 / 4,
+                    ),
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (context, index) {
+                      final vegetable = snapshot.data![index];
+                      return ProductCard(
+                        name: vegetable.name,
+                        imageUrl: vegetable.imageUrl,
+                        price: 5000 + (index * 1000),
+                      );
+                    },
+                  );
+                }
+              },
+            ),
           ],
         ),
       ),
@@ -247,43 +253,62 @@ class _HomeUserState extends State<HomeUser> {
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: [
-          categoryCard('Sayur Hijau', Icons.eco),
-          categoryCard('Sayur Buah', Icons.apple),
-          categoryCard('Sayur Akar', Icons.grass),
-          categoryCard('Bumbu Dapur', Icons.local_dining),
-          categoryCard('Lainnya', Icons.other_houses),
+          categoryCard('Sayur', Icons.eco, () {
+            Navigator.pushNamed(context, '/sayur');
+          }),
+          categoryCard('Buah', Icons.apple, () {
+            Navigator.pushNamed(context, '/buah');
+          }),
+          categoryCard('Rempah', Icons.grass, () {
+            Navigator.pushNamed(context, '/rempah');
+          }),
+          categoryCard('Lainnya', Icons.other_houses, () {
+            Navigator.pushNamed(context, '/other');
+          }),
         ],
       ),
     );
   }
 
-  Widget categoryCard(String title, IconData icon) {
+  Widget categoryCard(String title, IconData icon, VoidCallback onTap) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     bool isDarkMode = themeProvider.themeMode == ThemeMode.dark;
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 5.0),
-      width: 100.0,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10.0),
-        color: isDarkMode ? Colors.green[900] : Colors.lightGreenAccent[400],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 40.0, color: Colors.green),
-          SizedBox(height: 10),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
-          ),
-        ],
+
+    return GestureDetector(
+      onTap: () async {
+        await analytics.logEvent(
+          name: 'category_clicked',
+          parameters: {
+            'category_name': title,
+          },
+        );
+        onTap();
+      },
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 5.0),
+        width: 100.0,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10.0),
+          color: isDarkMode ? Colors.green[900] : Colors.lightGreenAccent[400],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 40.0, color: Colors.green),
+            SizedBox(height: 10),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-class ProductCard extends StatelessWidget {
+class ProductCard extends StatefulWidget {
   final String name;
   final String imageUrl;
   final int price;
@@ -296,6 +321,27 @@ class ProductCard extends StatelessWidget {
   });
 
   @override
+  _ProductCardState createState() => _ProductCardState();
+}
+
+class _ProductCardState extends State<ProductCard> {
+  int _count = 0;
+
+  void _incrementCount() {
+    setState(() {
+      _count++;
+    });
+  }
+
+  void _decrementCount() {
+    setState(() {
+      if (_count > 0) {
+        _count--;
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(10),
@@ -306,14 +352,35 @@ class ProductCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Image.network(imageUrl,
+          Image.network(widget.imageUrl,
               height: 100, width: double.infinity, fit: BoxFit.cover),
           SizedBox(height: 10),
-          Text(name,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          Text(
+            widget.name,
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            overflow: TextOverflow.ellipsis,
+          ),
           SizedBox(height: 10),
-          Text('Rp $price',
+          Text('Rp ${widget.price}',
               style: TextStyle(fontSize: 14, color: Colors.green)),
+          // SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton(
+                icon: Icon(Icons.remove),
+                onPressed: _decrementCount,
+              ),
+              Text(
+                '$_count',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              IconButton(
+                icon: Icon(Icons.add),
+                onPressed: _incrementCount,
+              ),
+            ],
+          ),
         ],
       ),
     );
