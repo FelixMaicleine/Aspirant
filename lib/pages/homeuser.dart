@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:aspirant/provider/theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,6 +18,7 @@ class HomeUser extends StatefulWidget {
 
 class _HomeUserState extends State<HomeUser> {
   String _username = '';
+  String _location = 'Mendeteksi lokasi...';
   final String apiKey = 'ab0c8d1ab41c4c178902d2983a1d6229';
   FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
@@ -23,6 +26,7 @@ class _HomeUserState extends State<HomeUser> {
   void initState() {
     super.initState();
     _loadUsername();
+    _determineLocation();
   }
 
   Future<void> _loadUsername() async {
@@ -30,6 +34,54 @@ class _HomeUserState extends State<HomeUser> {
     setState(() {
       _username = prefs.getString('username') ?? 'User';
     });
+  }
+
+  Future<void> _determineLocation() async {
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        setState(() {
+          _location = 'Layanan lokasi tidak aktif';
+        });
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          setState(() {
+            _location = 'Izin lokasi ditolak';
+          });
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        setState(() {
+          _location = 'Izin lokasi ditolak permanen';
+        });
+        return;
+      }
+
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(position.latitude, position.longitude);
+
+      if (placemarks.isNotEmpty) {
+        setState(() {
+          _location = placemarks[0].subLocality ??
+              placemarks[0].locality ??
+              'Lokasi tidak diketahui';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _location = 'Gagal mendapatkan lokasi';
+      });
+    }
   }
 
   Future<List<Vegetable>> fetchVegetables() async {
@@ -90,7 +142,7 @@ class _HomeUserState extends State<HomeUser> {
                   padding: EdgeInsets.zero,
                   children: <Widget>[
                     Container(
-                      height: 190,
+                      height: 210,
                       child: DrawerHeader(
                         decoration: BoxDecoration(
                           color:
@@ -110,6 +162,11 @@ class _HomeUserState extends State<HomeUser> {
                               _username,
                               style:
                                   TextStyle(color: Colors.white, fontSize: 20),
+                            ),
+                            Text(
+                              _location, 
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 16),
                             ),
                           ],
                         ),
@@ -343,11 +400,13 @@ class _ProductCardState extends State<ProductCard> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    bool isDarkMode = themeProvider.themeMode == ThemeMode.dark;
     return Container(
       padding: EdgeInsets.all(10),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: Colors.white,
+        color: isDarkMode ? Colors.green[900] : Colors.white,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:aspirant/provider/theme.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:aspirant/models/vegetable.dart';
 
@@ -29,17 +28,23 @@ class _OtherState extends State<Other> {
       Uri.parse(
           'https://api.spoonacular.com/food/ingredients/search?query=veg&apiKey=$apiKey&number=10&offset=0'),
     );
-    if (response1.statusCode == 200 && response2.statusCode == 200 && response2.statusCode == 200) {
-    final List jsonResponse1 = json.decode(response1.body)['results'];
-    final List jsonResponse2 = json.decode(response2.body)['results'];
-    final List jsonResponse3 = json.decode(response3.body)['results'];
+    if (response1.statusCode == 200 &&
+        response2.statusCode == 200 &&
+        response2.statusCode == 200) {
+      final List jsonResponse1 = json.decode(response1.body)['results'];
+      final List jsonResponse2 = json.decode(response2.body)['results'];
+      final List jsonResponse3 = json.decode(response3.body)['results'];
 
-    List combinedResults = [...jsonResponse1, ...jsonResponse2, ...jsonResponse3];
-    
-    return combinedResults.map((data) => Vegetable.fromJson(data)).toList();
-  } else {
-    throw Exception('Failed to load ingredients');
-  }
+      List combinedResults = [
+        ...jsonResponse1,
+        ...jsonResponse2,
+        ...jsonResponse3
+      ];
+
+      return combinedResults.map((data) => Vegetable.fromJson(data)).toList();
+    } else {
+      throw Exception('Failed to load ingredients');
+    }
   }
 
   @override
@@ -167,11 +172,13 @@ class _ProductCardState extends State<ProductCard> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    bool isDarkMode = themeProvider.themeMode == ThemeMode.dark;
     return Container(
       padding: EdgeInsets.all(10),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: Colors.white,
+        color: isDarkMode ? Colors.green[900] : Colors.white,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -179,8 +186,11 @@ class _ProductCardState extends State<ProductCard> {
           Image.network(widget.imageUrl,
               height: 100, width: double.infinity, fit: BoxFit.cover),
           SizedBox(height: 10),
-          Text(widget.name,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),overflow: TextOverflow.ellipsis,),
+          Text(
+            widget.name,
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            overflow: TextOverflow.ellipsis,
+          ),
           SizedBox(height: 10),
           Text('Rp ${widget.price}',
               style: TextStyle(fontSize: 14, color: Colors.green)),
@@ -207,4 +217,3 @@ class _ProductCardState extends State<ProductCard> {
     );
   }
 }
-

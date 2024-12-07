@@ -1,5 +1,7 @@
+import 'package:aspirant/pages/addstok.dart';
 import 'package:aspirant/pages/buah.dart';
 import 'package:aspirant/pages/changeusn.dart';
+import 'package:aspirant/pages/stok.dart';
 import 'package:aspirant/pages/homeadmin.dart';
 import 'package:aspirant/pages/lainnya.dart';
 import 'package:aspirant/pages/profile.dart';
@@ -17,8 +19,8 @@ import 'package:aspirant/pages/verif.dart';
 import 'package:aspirant/pages/change.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-// import 'package:firebase_analytics/observer.dart';
-
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,6 +51,16 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     return MaterialApp(
+      localizationsDelegates: [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [
+        Locale('en'), 
+        Locale('id'), 
+      ],
       title: 'My App',
       theme: ThemeData(
         brightness: Brightness.light,
@@ -83,8 +95,9 @@ class MyApp extends StatelessWidget {
         "/buah": (context) => Buah(),
         "/rempah": (context) => Rempah(),
         "/other": (context) => Other(),
+        "/stok": (context) => Stok(),
+        "/addstok": (context) => AddStok(),
       },
-      
     );
   }
 }

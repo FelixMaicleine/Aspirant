@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:aspirant/provider/theme.dart';
-import 'package:aspirant/services/db_helper.dart';
+import 'package:aspirant/services/sqflite_akun.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 
@@ -138,16 +138,22 @@ class _LoginState extends State<Login> {
               SizedBox(height: 10),
               _buildStaySignedIn(),
               _buildTermsCheckbox(),
-              ElevatedButton(
-                onPressed: () => _handleLogin(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  minimumSize: Size(200, 50),
-                ),
-                child: Text(
-                  'Login',
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold),
+              Semantics(
+                label: "Felix Login Button",
+                hint: "Make sure you have filled the username and password",
+                excludeSemantics: true,
+
+                child: ElevatedButton(
+                  onPressed: () => _handleLogin(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    minimumSize: Size(200, 50),
+                  ),
+                  child: Text(
+                    'Login',
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
               _buildRegisterButton(),
@@ -177,7 +183,6 @@ class _LoginState extends State<Login> {
           ),
           hintText: 'Enter your $label',
           prefixIcon: Icon(icon),
-          // Tambahkan ikon mata pada suffixIcon untuk toggle obscureText
           suffixIcon: label == 'Password'
               ? IconButton(
                   icon: Icon(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:aspirant/provider/theme.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeAdmin extends StatefulWidget {
@@ -146,7 +147,7 @@ class _HomeAdminState extends State<HomeAdmin> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Welcome, Admin!',
+                      AppLocalizations.of(context)!.welcomeadm,
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -164,22 +165,22 @@ class _HomeAdminState extends State<HomeAdmin> {
                 children: [
                   _DashboardCard(
                     icon: Icons.list,
-                    title: 'Manage Products',
-                    onTap: () {},
+                    title: AppLocalizations.of(context)!.kelolastok,
+                    onTap: () {Navigator.pushNamed(context, '/stok');},
                   ),
                   _DashboardCard(
                     icon: Icons.receipt,
-                    title: 'View Orders',
+                    title: AppLocalizations.of(context)!.pesanan,
                     onTap: () {},
                   ),
                   _DashboardCard(
                     icon: Icons.show_chart,
-                    title: 'Sales Reports',
+                    title: AppLocalizations.of(context)!.penjualan,
                     onTap: () {},
                   ),
                   _DashboardCard(
                     icon: Icons.settings,
-                    title: 'Settings',
+                    title: AppLocalizations.of(context)!.seting,
                     onTap: () {},
                   ),
                 ],
