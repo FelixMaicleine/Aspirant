@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:aspirant/models/eventmodel.dart';
+import 'package:aspirant/models/modelstock.dart';
 
 class Stok extends StatefulWidget {
   const Stok({super.key});
@@ -84,7 +84,8 @@ class _StokState extends State<Stok> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Database Stok"),
+        title: Text("Aspirant Fresh"),
+        centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.add),

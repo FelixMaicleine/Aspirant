@@ -3,6 +3,8 @@
   "welcomeadm": "Welcome, Admin!",
   "kelolastok": "Manage Stocks",
   "pesanan": "View Orders",
-  "penjualan": "Manage Stocks",
-  "seting": "Settings"
+  "penjualan": "Sales Report",
+  "seting": "Settings",
+  "profil": "Profile",
+  "logout": "Logout"
 }

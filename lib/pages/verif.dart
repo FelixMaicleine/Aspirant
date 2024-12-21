@@ -44,17 +44,7 @@ class _VerifState extends State<Verif> {
       appBar: AppBar(
         title: Text("Aspirant Fresh"),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: Icon(
-              isDarkMode ? Icons.nightlight_round : Icons.wb_sunny,
-              color: isDarkMode ? Colors.black : Colors.yellow,
-            ),
-            onPressed: () {
-              themeProvider.toggleTheme(!isDarkMode);
-            },
-          ),
-        ],
+        
       ),
       body: Container(
         padding: EdgeInsets.all(20.0),

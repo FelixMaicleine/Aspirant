@@ -4,5 +4,7 @@
   "kelolastok": "Kelola Stok",
   "pesanan": "Lihat Pesanan",
   "penjualan": "Laporan Penjualan",
-  "seting": "Pengaturan"
+  "seting": "Pengaturan",
+  "profil": "Profil",
+  "logout": "Keluar"
 }

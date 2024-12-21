@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:aspirant/provider/theme.dart';
 import 'package:http/http.dart' as http;
-import 'package:aspirant/models/vegetable.dart';
+import 'package:aspirant/models/vegehttp.dart';
 
 class Buah extends StatefulWidget {
   const Buah({super.key});
@@ -49,24 +49,11 @@ class _BuahState extends State<Buah> {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
-    bool isDarkMode = themeProvider.themeMode == ThemeMode.dark;
 
     return Scaffold(
       appBar: AppBar(
         title: Text("Aspirant Fresh"),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: Icon(
-              isDarkMode ? Icons.nightlight_round : Icons.wb_sunny,
-              color: isDarkMode ? Colors.black : Colors.yellow,
-            ),
-            onPressed: () {
-              themeProvider.toggleTheme(!isDarkMode);
-            },
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         child: Column(

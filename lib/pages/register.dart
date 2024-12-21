@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:aspirant/provider/theme.dart';
 import 'package:aspirant/services/sqflite_akun.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 
@@ -200,8 +198,7 @@ class _RegisterState extends State<Register> {
       screenName: 'Register',
       screenClass: 'Register',
     );
-    final themeProvider = Provider.of<ThemeProvider>(context);
-    bool isDarkMode = themeProvider.themeMode == ThemeMode.dark;
+    
 
     return Scaffold(
         body: CustomScrollView(
@@ -209,17 +206,7 @@ class _RegisterState extends State<Register> {
         SliverAppBar(
           title: Text("Aspirant Fresh"),
           centerTitle: true,
-          actions: [
-            IconButton(
-              icon: Icon(
-                isDarkMode ? Icons.nightlight_round : Icons.wb_sunny,
-                color: isDarkMode ? Colors.black : Colors.yellow,
-              ),
-              onPressed: () {
-                themeProvider.toggleTheme(!isDarkMode);
-              },
-            ),
-          ],
+          
           pinned: true,
           floating: false,
         ),
@@ -381,9 +368,7 @@ class _RegisterState extends State<Register> {
                                 _selectedIcon,
                               ),
                             ),
-                            dropdownColor: isDarkMode
-                                ? Colors.grey.shade800
-                                : Colors.white,
+                            
                           ),
                         ),
                       ],

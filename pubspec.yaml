@@ -50,6 +50,8 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: any
+  awesome_notifications: ^0.10.0
+  google_mobile_ads: ^5.2.0
 
 dev_dependencies:
   flutter_test:

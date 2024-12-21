@@ -42,17 +42,6 @@ class _HomeAdminState extends State<HomeAdmin> {
       appBar: AppBar(
         title: Text("Aspirant Fresh"),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: Icon(
-              isDarkMode ? Icons.nightlight_round : Icons.wb_sunny,
-              color: isDarkMode ? Colors.black : Colors.yellow,
-            ),
-            onPressed: () {
-              themeProvider.toggleTheme(!isDarkMode);
-            },
-          ),
-        ],
       ),
       drawer: Drawer(
         child: Container(
@@ -100,7 +89,7 @@ class _HomeAdminState extends State<HomeAdmin> {
                           Icons.person,
                         ),
                         title: Text(
-                          'Profile',
+                          AppLocalizations.of(context)!.profil,
                         ),
                         onTap: () {
                           Navigator.pushNamed(context, '/profile');
@@ -111,9 +100,9 @@ class _HomeAdminState extends State<HomeAdmin> {
                           Icons.settings,
                         ),
                         title: Text(
-                          'Settings',
+                          AppLocalizations.of(context)!.seting,
                         ),
-                        onTap: () {},
+                        onTap: () {Navigator.pushNamed(context, '/setting');},
                       ),
                     ],
                   ),
@@ -123,7 +112,7 @@ class _HomeAdminState extends State<HomeAdmin> {
                     Icons.logout,
                   ),
                   title: Text(
-                    'Logout',
+                    AppLocalizations.of(context)!.logout,
                   ),
                   onTap: () {
                     logout();
@@ -181,7 +170,7 @@ class _HomeAdminState extends State<HomeAdmin> {
                   _DashboardCard(
                     icon: Icons.settings,
                     title: AppLocalizations.of(context)!.seting,
-                    onTap: () {},
+                    onTap: () {Navigator.pushNamed(context, '/setting');},
                   ),
                 ],
               ),

@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:aspirant/provider/theme.dart';
 
 class Forgot extends StatefulWidget {
   const Forgot({super.key});
@@ -89,23 +87,12 @@ class _ForgotState extends State<Forgot> {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
-    bool isDarkMode = themeProvider.themeMode == ThemeMode.dark;
+    
     return Scaffold(
       appBar: AppBar(
         title: Text("Aspirant Fresh"),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: Icon(
-              isDarkMode ? Icons.nightlight_round : Icons.wb_sunny,
-              color: isDarkMode ? Colors.black : Colors.yellow,
-            ),
-            onPressed: () {
-              themeProvider.toggleTheme(!isDarkMode);
-            },
-          ),
-        ],
+        
       ),
       body: Center(
         child: Container(
