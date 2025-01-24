@@ -5,12 +5,10 @@
 
 
     <application
-        android:label="aspirant"
+        android:label="Aspirant Fresh"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
-        <meta-data
-        android:name="com.google.android.gms.ads.APPLICATION_ID"
-        android:value="ca-app-pub-2529789758528790~1085700625" />
+        
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -38,6 +36,9 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <meta-data
+        android:name="com.google.android.gms.ads.APPLICATION_ID"
+        android:value="ca-app-pub-9587444880468163~6815245857" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

@@ -10,32 +10,32 @@ class Stok extends StatefulWidget {
 }
 
 class _StokState extends State<Stok> {
-  String searchQuery = ''; 
+  String searchQuery = '';
 
-  Stream<List<EventModel>> getEventStream() {
+  Stream<List<StokModel>> getStokStream() {
     FirebaseFirestore db = FirebaseFirestore.instance;
-    return db.collection("event").snapshots().map((snapshot) {
-      return snapshot.docs.map((doc) => EventModel.fromDocSnapshot(doc)).toList();
+    return db.collection("stok").snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) => StokModel.fromDocSnapshot(doc)).toList();
     });
   }
 
-  Future deleteEvent(String docId) async {
+  Future deleteStok(String docId) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
-    await db.collection("event").doc(docId).delete();
+    await db.collection("stok").doc(docId).delete();
   }
 
-  Future updateEvent(EventModel event) async {
+  Future updateStok(StokModel stok) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
-    await db.collection("event").doc(event.id).update(event.toMap());
+    await db.collection("stok").doc(stok.id).update(stok.toMap());
   }
 
-  void showEditDialog(EventModel event) {
+  void showEditDialog(StokModel stok) {
     final TextEditingController editNamaController =
-        TextEditingController(text: event.nama);
+        TextEditingController(text: stok.nama);
     final TextEditingController editHargaController =
-        TextEditingController(text: event.harga);
+        TextEditingController(text: stok.harga.toString());
     final TextEditingController editStokController =
-        TextEditingController(text: event.stok);
+        TextEditingController(text: stok.stok.toString());
 
     showDialog(
       context: context,
@@ -50,10 +50,12 @@ class _StokState extends State<Stok> {
             ),
             TextField(
               controller: editHargaController,
+              keyboardType: TextInputType.number,
               decoration: const InputDecoration(labelText: "Harga"),
             ),
             TextField(
               controller: editStokController,
+              keyboardType: TextInputType.number,
               decoration: const InputDecoration(labelText: "Stok"),
             ),
           ],
@@ -67,10 +69,10 @@ class _StokState extends State<Stok> {
           ),
           ElevatedButton(
             onPressed: () {
-              event.nama = editNamaController.text.trim();
-              event.harga = editHargaController.text.trim();
-              event.stok = editStokController.text.trim();
-              updateEvent(event);
+              stok.nama = editNamaController.text.trim();
+              stok.harga = int.tryParse(editHargaController.text.trim()) ?? 0;
+              stok.stok = int.tryParse(editStokController.text.trim()) ?? 0;
+              updateStok(stok);
               Navigator.pop(context);
             },
             child: const Text("Save"),
@@ -84,7 +86,7 @@ class _StokState extends State<Stok> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Aspirant Fresh"),
+        title: const Text("Aspirant Fresh"),
         centerTitle: true,
         actions: [
           IconButton(
@@ -115,8 +117,8 @@ class _StokState extends State<Stok> {
               ),
             ),
             Expanded(
-              child: StreamBuilder<List<EventModel>>(
-                stream: getEventStream(),
+              child: StreamBuilder<List<StokModel>>(
+                stream: getStokStream(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -128,55 +130,52 @@ class _StokState extends State<Stok> {
                     return const Center(child: Text("No data available"));
                   }
 
-                  List<EventModel> filteredEvents = snapshot.data!
-                      .where((event) =>
-                          event.nama
-                              .toLowerCase()
-                              .contains(searchQuery.toLowerCase()))
+                  List<StokModel> filteredStok = snapshot.data!
+                      .where((stok) => stok.nama
+                          .toLowerCase()
+                          .contains(searchQuery.toLowerCase()))
                       .toList();
-                  filteredEvents.sort((a, b) => a.nama.compareTo(b.nama));
+                  filteredStok.sort((a, b) => a.nama.compareTo(b.nama));
 
                   return ListView.builder(
-  itemCount: filteredEvents.length,
-  itemBuilder: (context, index) {
-    return Card(
-      margin: const EdgeInsets.all(8.0),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(16.0),
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              filteredEvents[index].nama,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.edit),
-                  onPressed: () {
-                    showEditDialog(filteredEvents[index]);
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: () {
-                    deleteEvent(filteredEvents[index].id!);
-                  },
-                ),
-              ],
-            ),
-          ],
-        ),
-        subtitle: Text(
-          "Harga: ${filteredEvents[index].harga.isNotEmpty ? filteredEvents[index].harga : 'N/A'} | "
-          "Stok: ${filteredEvents[index].stok.isNotEmpty ? filteredEvents[index].stok : 'N/A'}",
-        ),
-      ),
-    );
-  },
-);
-
+                    itemCount: filteredStok.length,
+                    itemBuilder: (context, index) {
+                      return Card(
+                        margin: const EdgeInsets.all(8.0),
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.all(16.0),
+                          title: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                filteredStok[index].nama,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Row(
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.edit),
+                                    onPressed: () {
+                                      showEditDialog(filteredStok[index]);
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete),
+                                    onPressed: () {
+                                      deleteStok(filteredStok[index].id!);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          subtitle: Text(
+                              "Harga: ${filteredStok[index].harga} | Stok: ${filteredStok[index].stok}"),
+                        ),
+                      );
+                    },
+                  );
                 },
               ),
             ),

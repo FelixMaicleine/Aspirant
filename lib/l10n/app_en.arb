@@ -6,5 +6,18 @@
   "penjualan": "Sales Report",
   "seting": "Settings",
   "profil": "Profile",
-  "logout": "Logout"
+  "logout": "Logout",
+  "bhs": "Language",
+  "ing": "English",
+  "ind": "Indonesian",
+  "mand": "Chinese",
+  "thm": "Theme",
+  "terang": "Light",
+  "gelap": "Dark",
+  "promo": "Special Promo! 20% discount for all vegetables",
+  "sayur": "Vegetable",
+  "buah": "Fruit",
+  "rempah": "Spice",
+  "lain": "Others",
+  "unggul": "Featured Product"
 }

@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:aspirant/provider/theme.dart';
 
 class Verif extends StatefulWidget {
   const Verif({super.key});
@@ -29,9 +27,6 @@ class _VerifState extends State<Verif> {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
-    bool isDarkMode = themeProvider.themeMode == ThemeMode.dark;
-
     _controllers[5].addListener(() {
       bool allBoxesFilled =
           _controllers.every((controller) => controller.text.isNotEmpty);
@@ -80,14 +75,12 @@ class _VerifState extends State<Verif> {
                       counterText: '',
                       enabledBorder: OutlineInputBorder(
                         borderSide: BorderSide(
-                          color: isDarkMode ? Colors.white : Colors.black,
                           width: 2.0,
                         ),
                         borderRadius: BorderRadius.circular(0),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(
-                          color: isDarkMode ? Colors.white : Colors.black,
                           width: 2.0,
                         ),
                         borderRadius: BorderRadius.circular(100.0),

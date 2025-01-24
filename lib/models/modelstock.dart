@@ -1,25 +1,28 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class EventModel {
+class StokModel {
   String? id;
   String nama;
-  String harga;
-  String stok;
+  int harga;
+  int stok;
+  String? imageUrl; 
 
-  EventModel({
+  StokModel({
     this.id,
     required this.nama,
     required this.harga,
     required this.stok,
+    this.imageUrl, 
   });
 
-  factory EventModel.fromDocSnapshot(DocumentSnapshot doc) {
+  factory StokModel.fromDocSnapshot(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
-    return EventModel(
+    return StokModel(
       id: doc.id,
       nama: data['nama'] ?? '',
-      harga: data['harga'] ?? '',
-      stok: data['stok'] ?? '',
+      harga: (data['harga'] ?? 0).toInt(),
+      stok: (data['stok'] ?? 0).toInt(),
+      imageUrl: data['imageUrl'], 
     );
   }
 
@@ -28,6 +31,7 @@ class EventModel {
       'nama': nama,
       'harga': harga,
       'stok': stok,
+      'imageUrl': imageUrl, 
     };
   }
 }

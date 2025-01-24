@@ -3,8 +3,12 @@ import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:aspirant/provider/theme.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 class LanguageSettings extends StatefulWidget {
+  const LanguageSettings({super.key});
+
   @override
   _LanguageSettingsState createState() => _LanguageSettingsState();
 }
@@ -60,7 +64,7 @@ class _LanguageSettingsState extends State<LanguageSettings> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Bahasa',
+                      AppLocalizations.of(context)!.bhs,
                       style: TextStyle(fontSize: 18),
                     ),
                     DropdownButton<String>(
@@ -79,10 +83,10 @@ class _LanguageSettingsState extends State<LanguageSettings> {
                         return DropdownMenuItem<String>(
                           value: value,
                           child: Text(value == 'en'
-                              ? 'English'
+                              ? AppLocalizations.of(context)!.ing
                               : value == 'id'
-                                  ? 'Bahasa Indonesia'
-                                  : '中文'),
+                                  ? AppLocalizations.of(context)!.ind
+                                  : AppLocalizations.of(context)!.mand),
                         );
                       }).toList(),
                     ),
@@ -103,7 +107,7 @@ class _LanguageSettingsState extends State<LanguageSettings> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Tema',
+                      AppLocalizations.of(context)!.thm,
                       style: TextStyle(fontSize: 18),
                     ),
                     DropdownButton<String>(
@@ -125,7 +129,7 @@ class _LanguageSettingsState extends State<LanguageSettings> {
                           .map<DropdownMenuItem<String>>((String value) {
                         return DropdownMenuItem<String>(
                           value: value,
-                          child: Text(value == 'light' ? 'Light' : 'Dark'),
+                          child: Text(value == 'light' ? AppLocalizations.of(context)!.terang : AppLocalizations.of(context)!.gelap,),
                         );
                       }).toList(),
                     ),

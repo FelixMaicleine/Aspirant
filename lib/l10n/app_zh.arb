@@ -6,5 +6,18 @@
   "penjualan": "销售报告",
   "seting": "设置",
   "profil": "轮廓",
-  "logout": "外"
+  "logout": "外",
+  "bhs": "语言",
+  "ing": "英语",
+  "ind": "印度尼西亚",
+  "mand": "中文",
+  "thm": "主题",
+  "terang": "明亮的",
+  "gelap": "黑暗的",
+  "promo": "特别促销！所有蔬菜均可享受 20% 折扣",
+  "sayur": "蔬菜",
+  "buah": "水果",
+  "rempah": "香料",
+  "lain": "其他",
+  "unggul": "特色产品"
 }

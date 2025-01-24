@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:aspirant/services/sqflite_akun.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 
 class Login extends StatefulWidget {
@@ -32,71 +34,89 @@ class _LoginState extends State<Login> {
   }
 
   void _handleLogin(BuildContext context) async {
-    String username = _usernameController.text;
-    String password = _passwordController.text;
+  String username = _usernameController.text;
+  String password = _passwordController.text;
 
-    if (_agreedToTerms) {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            backgroundColor: Colors.green,
-            content: Row(
-              children: [
-                CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation(Colors.white)),
-                SizedBox(width: 20),
-                Text('Logging In...', style: TextStyle(color: Colors.white)),
-              ],
-            ),
-          );
-        },
-      );
+  if (_agreedToTerms) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.green,
+          content: Row(
+            children: [
+              CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation(Colors.white)),
+              SizedBox(width: 20),
+              Text('Logging In...', style: TextStyle(color: Colors.white)),
+            ],
+          ),
+        );
+      },
+    );
 
-      await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(Duration(seconds: 2));
 
-      final user = await DBHelper.instance.getUser(username, password);
+    final user = await DBHelper.instance.getUser(username, password);
 
-      Navigator.pop(context);
+    Navigator.pop(context);
 
-      if (user != null) {
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('username', username);
-        final role = await DBHelper.instance.getRoleById(user['role_id']);
-        if (role != null) {
-          
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          await prefs.setBool('isLoggedIn', true);
-          await prefs.setInt('roleId', user['role_id']); 
+    if (user != null) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('username', username);
+      final role = await DBHelper.instance.getRoleById(user['role_id']);
+      
+      if (role != null) {
+        await prefs.setBool('isLoggedIn', true);
+        await prefs.setInt('roleId', user['role_id']); 
 
-          await FirebaseAnalytics.instance.logEvent(
-            name: 'login',
-            parameters: {
-              'username': username,
-              'role': role['name'],  
-            },
-          );
+        await FirebaseAnalytics.instance.logEvent(
+          name: 'login',
+          parameters: {
+            'username': username,
+            'role': role['name'],  
+          },
+        );
 
-          if (role['name'] == 'admin') {
-            Navigator.pushNamedAndRemoveUntil(
-                context, '/homeadmin', (route) => false);
-          } else if (role['name'] == 'user') {
-            Navigator.pushNamedAndRemoveUntil(
-                context, '/homeuser', (route) => false);
+        if (role['name'] == 'admin') {
+          Navigator.pushNamedAndRemoveUntil(
+              context, '/homeadmin', (route) => false);
+        } else if (role['name'] == 'user') {
+          final hasOngoing = await checkOngoingStatus(username);
+          await prefs.setString('userId', username);
+
+          if (hasOngoing) {
+            Navigator.pushNamedAndRemoveUntil(context, '/usrordr', (route) => false);
+          } else {
+            Navigator.pushNamedAndRemoveUntil(context, '/homeuser', (route) => false);
           }
-          _showSnackBar(context, 'Login Success as ${role['name']}',
-              backgroundColor: Colors.green);
-        } else {
-          _showSnackBar(context, 'Role not found');
         }
+
+        _showSnackBar(context, 'Login Success as ${role['name']}',
+            backgroundColor: Colors.green);
       } else {
-        _showSnackBar(context, 'Invalid username or password');
+        _showSnackBar(context, 'Role not found');
       }
     } else {
-      _showSnackBar(context, 'You must agree to the terms of service!');
+      _showSnackBar(context, 'Invalid username or password');
     }
+  } else {
+    _showSnackBar(context, 'You must agree to the terms of service!');
   }
+}
+
+
+  Future<bool> checkOngoingStatus(String username) async {
+  final query = await FirebaseFirestore.instance
+      .collection('sales')
+      .where('userId', isEqualTo: username)
+      .where('status', isEqualTo: 'ongoing')
+      .get();
+
+  return query.docs.isNotEmpty;
+}
+
 
   @override
   Widget build(BuildContext context) {

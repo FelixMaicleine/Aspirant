@@ -2,6 +2,9 @@ import 'package:aspirant/pages/addstok.dart';
 import 'package:aspirant/pages/buah.dart';
 import 'package:aspirant/pages/cart.dart';
 import 'package:aspirant/pages/changeusn.dart';
+import 'package:aspirant/pages/orderadmview.dart';
+import 'package:aspirant/pages/orderuser.dart';
+import 'package:aspirant/pages/sales.dart';
 import 'package:aspirant/pages/setting.dart';
 import 'package:aspirant/pages/stok.dart';
 import 'package:aspirant/pages/homeadmin.dart';
@@ -42,7 +45,7 @@ void main() async {
   requestNotificationPermission();
 
   AwesomeNotifications().initialize(
-    'resource://drawable/notifaspirant', 
+    'resource://drawable/appicon3', 
     [
       NotificationChannel(
         channelKey: 'basic_channel',
@@ -141,6 +144,9 @@ class MyApp extends StatelessWidget {
         "/addstok": (context) => AddStok(),
         "/setting": (context) => LanguageSettings(),
         "/cart": (context) => Cart(),
+        "/sales": (context) => Sales(),
+        "/usrordr": (context) => OngoingOrderPage(),
+        "/admordr": (context) => AdminOngoingOrdersPage(),
       },
     );
   }

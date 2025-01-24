@@ -16,12 +16,12 @@ class _AddStokState extends State<AddStok> {
 
   Future addEvent() async {
     FirebaseFirestore db = FirebaseFirestore.instance;
-    EventModel insertData = EventModel(
+    StokModel insertData = StokModel(
       nama: namaController.text.trim(),
-      harga: hargaController.text.trim(),
-      stok: stokController.text.trim(),
+      harga: int.tryParse(hargaController.text.trim()) ?? 0, 
+      stok: int.tryParse(stokController.text.trim()) ?? 0,  
     );
-    await db.collection("event").add(insertData.toMap());
+    await db.collection("stok").add(insertData.toMap());
     namaController.clear();
     hargaController.clear();
     stokController.clear();
@@ -32,7 +32,7 @@ class _AddStokState extends State<AddStok> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Aspirant Fresh"),
+        title: const Text("Aspirant Fresh"),
         centerTitle: true,
       ),
       body: Center(
@@ -51,6 +51,7 @@ class _AddStokState extends State<AddStok> {
               child: TextField(
                 controller: hargaController,
                 decoration: const InputDecoration(labelText: "Harga"),
+                keyboardType: TextInputType.number, 
               ),
             ),
             Padding(
@@ -58,6 +59,7 @@ class _AddStokState extends State<AddStok> {
               child: TextField(
                 controller: stokController,
                 decoration: const InputDecoration(labelText: "Stok"),
+                keyboardType: TextInputType.number, 
               ),
             ),
             ElevatedButton(

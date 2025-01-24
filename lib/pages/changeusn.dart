@@ -66,7 +66,7 @@ class _UpdateUsernameState extends State<UpdateUsername> {
             Row(
               children: [
                 Text(
-                  "New Username ",
+                  "New Username",
                   style: TextStyle(fontSize: 20),
                 ),
               ],

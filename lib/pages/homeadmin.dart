@@ -16,22 +16,21 @@ class _HomeAdminState extends State<HomeAdmin> {
   @override
   void initState() {
     super.initState();
-    _loadUsername(); 
+    _loadUsername();
   }
 
   Future<void> _loadUsername() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _username = prefs.getString('username') ?? 'User'; 
+      _username = prefs.getString('username') ?? 'User';
     });
   }
 
   Future<void> logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLoggedIn', false);
-    await prefs.remove('roleId'); 
-    Navigator.pushReplacementNamed(
-        context, '/login'); 
+    await prefs.remove('roleId');
+    Navigator.pushReplacementNamed(context, '/login');
   }
 
   @override
@@ -74,7 +73,7 @@ class _HomeAdminState extends State<HomeAdmin> {
                               ),
                               SizedBox(height: 10),
                               Text(
-                                _username, 
+                                _username,
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 20,
@@ -97,12 +96,47 @@ class _HomeAdminState extends State<HomeAdmin> {
                       ),
                       ListTile(
                         leading: Icon(
+                          Icons.list,
+                        ),
+                        title: Text(
+                          AppLocalizations.of(context)!.kelolastok,
+                        ),
+                        onTap: () {
+                          Navigator.pushNamed(context, '/stok');
+                        },
+                      ),
+                      ListTile(
+                        leading: Icon(
+                          Icons.receipt,
+                        ),
+                        title: Text(
+                          AppLocalizations.of(context)!.pesanan,
+                        ),
+                        onTap: () {
+                          Navigator.pushNamed(context, '/admordr');
+                        },
+                      ),
+                      ListTile(
+                        leading: Icon(
+                          Icons.show_chart,
+                        ),
+                        title: Text(
+                          AppLocalizations.of(context)!.penjualan,
+                        ),
+                        onTap: () {
+                          Navigator.pushNamed(context, '/sales');
+                        },
+                      ),
+                      ListTile(
+                        leading: Icon(
                           Icons.settings,
                         ),
                         title: Text(
                           AppLocalizations.of(context)!.seting,
                         ),
-                        onTap: () {Navigator.pushNamed(context, '/setting');},
+                        onTap: () {
+                          Navigator.pushNamed(context, '/setting');
+                        },
                       ),
                     ],
                   ),
@@ -155,22 +189,30 @@ class _HomeAdminState extends State<HomeAdmin> {
                   _DashboardCard(
                     icon: Icons.list,
                     title: AppLocalizations.of(context)!.kelolastok,
-                    onTap: () {Navigator.pushNamed(context, '/stok');},
+                    onTap: () {
+                      Navigator.pushNamed(context, '/stok');
+                    },
                   ),
                   _DashboardCard(
                     icon: Icons.receipt,
                     title: AppLocalizations.of(context)!.pesanan,
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.pushNamed(context, '/admordr');
+                    },
                   ),
                   _DashboardCard(
                     icon: Icons.show_chart,
                     title: AppLocalizations.of(context)!.penjualan,
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.pushNamed(context, '/sales');
+                    },
                   ),
                   _DashboardCard(
                     icon: Icons.settings,
                     title: AppLocalizations.of(context)!.seting,
-                    onTap: () {Navigator.pushNamed(context, '/setting');},
+                    onTap: () {
+                      Navigator.pushNamed(context, '/setting');
+                    },
                   ),
                 ],
               ),

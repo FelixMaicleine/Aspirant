@@ -6,5 +6,18 @@
   "penjualan": "Laporan Penjualan",
   "seting": "Pengaturan",
   "profil": "Profil",
-  "logout": "Keluar"
+  "logout": "Keluar",
+  "bhs": "Bahasa",
+  "ing": "Inggris",
+  "ind": "Indonesia",
+  "mand": "Mandarin",
+  "thm": "Tema",
+  "terang": "Terang",
+  "gelap": "Gelap",
+  "promo": "Promo Spesial! Diskon 20% untuk semua sayur",
+  "sayur": "Sayur",
+  "buah": "Buah",
+  "rempah": "Rempah",
+  "lain": "Lainnya",
+  "unggul": "Produk Unggulan"
 }

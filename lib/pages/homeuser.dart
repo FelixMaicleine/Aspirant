@@ -1,14 +1,15 @@
-import 'dart:convert';
+import 'package:aspirant/models/modelstock.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:aspirant/provider/theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
-import 'package:aspirant/models/vegehttp.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 class HomeUser extends StatefulWidget {
   const HomeUser({super.key});
@@ -18,6 +19,7 @@ class HomeUser extends StatefulWidget {
 }
 
 class _HomeUserState extends State<HomeUser> {
+
   late BannerAd _bannerAd;
   bool _isAdLoaded = false;
   bool _isAdVisible = true;
@@ -41,7 +43,7 @@ class _HomeUserState extends State<HomeUser> {
 
   void _loadBannerAd() {
     _bannerAd = BannerAd(
-      adUnitId: 'ca-app-pub-3940256099942544/6300978111', // Unit ID Test Google
+      adUnitId: 'ca-app-pub-3940256099942544/6300978111', 
       size: AdSize.banner,
       request: AdRequest(),
       listener: BannerAdListener(
@@ -60,9 +62,9 @@ class _HomeUserState extends State<HomeUser> {
     _bannerAd.load();
   }
 
-void _loadInterstitialAd() {
+  void _loadInterstitialAd() {
     InterstitialAd.load(
-      adUnitId: 'ca-app-pub-3940256099942544/1033173712', // Unit ID Test Google
+      adUnitId: 'ca-app-pub-3940256099942544/1033173712', 
       request: AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (InterstitialAd ad) {
@@ -84,19 +86,19 @@ void _loadInterstitialAd() {
       _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
         onAdDismissedFullScreenContent: (InterstitialAd ad) {
           ad.dispose();
-          _loadInterstitialAd(); 
-          onAdClosed(); 
+          _loadInterstitialAd();
+          onAdClosed();
         },
         onAdFailedToShowFullScreenContent: (InterstitialAd ad, AdError error) {
           ad.dispose();
-          _loadInterstitialAd(); 
-          onAdClosed(); 
+          _loadInterstitialAd();
+          onAdClosed();
         },
       );
       _interstitialAd!.show();
-      _interstitialAd = null; 
+      _interstitialAd = null;
     } else {
-      onAdClosed(); 
+      onAdClosed();
     }
   }
 
@@ -115,40 +117,47 @@ void _loadInterstitialAd() {
   }
 
   Future<void> _determineLocation() async {
-    try {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
+  try {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      if (mounted) {
         setState(() {
           _location = 'Layanan lokasi tidak aktif';
         });
-        return;
       }
+      return;
+    }
 
-      LocationPermission permission = await Geolocator.checkPermission();
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
+        if (mounted) {
           setState(() {
             _location = 'Izin lokasi ditolak';
           });
-          return;
         }
+        return;
       }
+    }
 
-      if (permission == LocationPermission.deniedForever) {
+    if (permission == LocationPermission.deniedForever) {
+      if (mounted) {
         setState(() {
           _location = 'Izin lokasi ditolak permanen';
         });
-        return;
       }
+      return;
+    }
 
-      Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
 
-      List<Placemark> placemarks =
-          await placemarkFromCoordinates(position.latitude, position.longitude);
+    List<Placemark> placemarks =
+        await placemarkFromCoordinates(position.latitude, position.longitude);
 
-      if (placemarks.isNotEmpty) {
+    if (placemarks.isNotEmpty) {
+      if (mounted) {
         setState(() {
           String kota = placemarks[0].subAdministrativeArea ?? '';
           String kecamatan = placemarks[0].locality ?? '';
@@ -156,28 +165,28 @@ void _loadInterstitialAd() {
           _location = '$kota\n$kecamatan\n$kelurahan';
         });
       }
-    } catch (e) {
+    }
+  } catch (e) {
+    if (mounted) {
       setState(() {
         _location = 'Gagal mendapatkan lokasi';
       });
     }
   }
+}
 
-  Future<List<Vegetable>> fetchVegetables() async {
-    final response = await http.get(
-      Uri.parse(
-          'https://api.spoonacular.com/food/ingredients/search?query=vegetable&apiKey=$apiKey&number=50&offset=0'),
-    );
 
-    if (response.statusCode == 200) {
-      final List jsonResponse = json.decode(response.body)['results'];
-      jsonResponse.removeAt(10);
-      jsonResponse.removeAt(10);
-      return jsonResponse.map((data) => Vegetable.fromJson(data)).toList();
-    } else {
-      throw Exception('Failed to load vegetables');
-    }
+  Future<List<StokModel>> fetchStok() async {
+    final snapshot = await FirebaseFirestore.instance.collection('stok').get();
+    return snapshot.docs.map((doc) {
+      return StokModel(
+        nama: doc['nama'],
+        harga: doc['harga'],
+        imageUrl: doc['imageUrl'], stok: doc['stok'], 
+      );
+    }).toList();
   }
+
 
   Future<void> logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -185,8 +194,6 @@ void _loadInterstitialAd() {
     await prefs.remove('roleId');
     Navigator.pushReplacementNamed(context, '/login');
   }
-
-  
 
   @override
   Widget build(BuildContext context) {
@@ -244,16 +251,41 @@ void _loadInterstitialAd() {
                     ),
                     ListTile(
                       leading: Icon(Icons.person),
-                      title: Text('Profile'),
+                      title: Text(AppLocalizations.of(context)!.profil),
                       onTap: () {
                         Navigator.pushNamed(context, '/profile');
                       },
                     ),
                     ListTile(
                       leading: Icon(Icons.settings),
-                      title: Text('Settings'),
+                      title: Text(AppLocalizations.of(context)!.seting),
                       onTap: () {
                         Navigator.pushNamed(context, '/setting');
+                      },
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.eco),
+                      title: Text(AppLocalizations.of(context)!.seting),
+                      onTap: () {
+                        Navigator.pushNamed(context, '/sayur');
+                      },
+                    ),ListTile(
+                      leading: Icon(Icons.apple),
+                      title: Text(AppLocalizations.of(context)!.seting),
+                      onTap: () {
+                        Navigator.pushNamed(context, '/buah');
+                      },
+                    ),ListTile(
+                      leading: Icon(Icons.grass),
+                      title: Text(AppLocalizations.of(context)!.seting),
+                      onTap: () {
+                        Navigator.pushNamed(context, '/rempah');
+                      },
+                    ),ListTile(
+                      leading: Icon(Icons.other_houses),
+                      title: Text(AppLocalizations.of(context)!.seting),
+                      onTap: () {
+                        Navigator.pushNamed(context, '/other');
                       },
                     ),
                   ],
@@ -261,7 +293,7 @@ void _loadInterstitialAd() {
               ),
               ListTile(
                 leading: Icon(Icons.logout),
-                title: Text('Logout'),
+                title: Text(AppLocalizations.of(context)!.logout),
                 onTap: logout,
               ),
             ],
@@ -279,47 +311,46 @@ void _loadInterstitialAd() {
                 Padding(
                   padding: EdgeInsets.all(10.0),
                   child: Text(
-                    'Produk Unggulan',
-                    style: TextStyle(
-                        fontSize: 18.0, fontWeight: FontWeight.bold),
+                    AppLocalizations.of(context)!.unggul,
+                    style:
+                        TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
                   ),
                 ),
-                FutureBuilder<List<Vegetable>>(
-                  future: fetchVegetables(),
+                FutureBuilder<List<StokModel>>(
+                  future: fetchStok(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return Center(child: CircularProgressIndicator());
                     } else if (snapshot.hasError) {
-                      return Center(
-                          child: Text('Error: ${snapshot.error}'));
-                    } else if (!snapshot.hasData ||
-                        snapshot.data!.isEmpty) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                       return Center(child: Text('No data found'));
                     } else {
                       return GridView.builder(
                         physics: NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
                         padding: EdgeInsets.all(10),
-                        gridDelegate:
-                            SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
                           crossAxisSpacing: 10,
                           mainAxisSpacing: 10,
-                          childAspectRatio: 3.3 / 4,
+                          childAspectRatio: 2.8 / 4,
                         ),
                         itemCount: snapshot.data!.length,
                         itemBuilder: (context, index) {
-                          final vegetable = snapshot.data![index];
+                          final stok = snapshot.data![index];
                           return ProductCard(
-                            name: vegetable.name,
-                            imageUrl: vegetable.imageUrl,
-                            price: 5000 + (index * 1000),
+                            name: stok.nama,
+                            imageUrl:
+                                stok.imageUrl ?? '', 
+                            price: stok.harga,
+                            stok: stok.stok,
                           );
                         },
                       );
                     }
                   },
-                ),
+                )
               ],
             ),
           ),
@@ -366,7 +397,6 @@ void _loadInterstitialAd() {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.pushNamed(context, '/cart');
-          
         },
         backgroundColor: Colors.green,
         child: Icon(
@@ -390,7 +420,7 @@ void _loadInterstitialAd() {
         children: [
           Flexible(
             child: Text(
-              'Promo Spesial! Diskon 20% untuk semua sayur',
+              AppLocalizations.of(context)!.promo,
               style: TextStyle(
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
@@ -421,16 +451,16 @@ void _loadInterstitialAd() {
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: [
-          categoryCard('Sayur', Icons.eco, () {
+          categoryCard(AppLocalizations.of(context)!.sayur, Icons.eco, () {
             Navigator.pushNamed(context, '/sayur');
           }),
-          categoryCard('Buah', Icons.apple, () {
+          categoryCard(AppLocalizations.of(context)!.buah, Icons.apple, () {
             Navigator.pushNamed(context, '/buah');
           }),
-          categoryCard('Rempah', Icons.grass, () {
+          categoryCard(AppLocalizations.of(context)!.rempah, Icons.grass, () {
             Navigator.pushNamed(context, '/rempah');
           }),
-          categoryCard('Lainnya', Icons.other_houses, () {
+          categoryCard(AppLocalizations.of(context)!.lain, Icons.other_houses, () {
             Navigator.pushNamed(context, '/other');
           }),
         ],
@@ -480,12 +510,14 @@ class ProductCard extends StatefulWidget {
   final String name;
   final String imageUrl;
   final int price;
+  final int stok;
 
   const ProductCard({
     super.key,
     required this.name,
     required this.imageUrl,
     required this.price,
+    required this.stok,
   });
 
   @override
@@ -494,25 +526,82 @@ class ProductCard extends StatefulWidget {
 
 class _ProductCardState extends State<ProductCard> {
   int _count = 0;
+  String _username = '';
 
-  void _incrementCount() {
+  @override
+  void initState() {
+    super.initState();
+    _loadUsername();
+  }
+
+  Future<void> _loadUsername() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _count++;
+      _username = prefs.getString('username') ?? 'User';
     });
   }
 
-  void _decrementCount() {
+  Future<void> _addToCart() async {
+    if (_username.isEmpty) return;
+
+    final cartRef = FirebaseFirestore.instance
+        .collection('cart')
+        .doc(_username)
+        .collection('items')
+        .doc(widget.name);
+
+    final cartData = {
+      'name': widget.name,
+      'price': widget.price,
+      'quantity': _count,
+    };
+
+    await cartRef.set(cartData);
+  }
+
+  Future<void> _removeFromCart() async {
+    if (_username.isEmpty) return;
+
+    final cartRef = FirebaseFirestore.instance
+        .collection('cart')
+        .doc(_username)
+        .collection('items')
+        .doc(widget.name);
+
+    await cartRef.delete();
+  }
+
+  void _incrementCount() async {
     setState(() {
-      if (_count > 0) {
-        _count--;
-      }
+      _count++;
     });
+
+    if (_count == 1) {
+      await _addToCart();
+    } else {
+      await _addToCart();
+    }
+  }
+
+  void _decrementCount() async {
+    if (_count > 0) {
+      setState(() {
+        _count--;
+      });
+
+      if (_count == 0) {
+        await _removeFromCart();
+      } else {
+        await _addToCart();
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     bool isDarkMode = themeProvider.themeMode == ThemeMode.dark;
+
     return Container(
       padding: EdgeInsets.all(10),
       decoration: BoxDecoration(
@@ -522,18 +611,33 @@ class _ProductCardState extends State<ProductCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Image.network(widget.imageUrl,
-              height: 100, width: double.infinity, fit: BoxFit.cover),
+          Image.network(
+            widget.imageUrl,
+            height: 150,
+            width: 200,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) =>
+                Icon(Icons.broken_image, size: 100),
+          ),
           SizedBox(height: 10),
-          Text(
-            widget.name,
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            overflow: TextOverflow.ellipsis,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                widget.name,
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                overflow: TextOverflow.ellipsis,
+              ),
+              Text(
+                'Stok: ${widget.stok}',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
           ),
           SizedBox(height: 10),
           Text('Rp ${widget.price}',
               style: TextStyle(fontSize: 14, color: Colors.green)),
-          // SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -556,3 +660,4 @@ class _ProductCardState extends State<ProductCard> {
     );
   }
 }
+
