@@ -265,25 +265,25 @@ class _HomeUserState extends State<HomeUser> {
                     ),
                     ListTile(
                       leading: Icon(Icons.eco),
-                      title: Text(AppLocalizations.of(context)!.seting),
+                      title: Text(AppLocalizations.of(context)!.sayur),
                       onTap: () {
                         Navigator.pushNamed(context, '/sayur');
                       },
                     ),ListTile(
                       leading: Icon(Icons.apple),
-                      title: Text(AppLocalizations.of(context)!.seting),
+                      title: Text(AppLocalizations.of(context)!.buah),
                       onTap: () {
                         Navigator.pushNamed(context, '/buah');
                       },
                     ),ListTile(
                       leading: Icon(Icons.grass),
-                      title: Text(AppLocalizations.of(context)!.seting),
+                      title: Text(AppLocalizations.of(context)!.rempah),
                       onTap: () {
                         Navigator.pushNamed(context, '/rempah');
                       },
                     ),ListTile(
                       leading: Icon(Icons.other_houses),
-                      title: Text(AppLocalizations.of(context)!.seting),
+                      title: Text(AppLocalizations.of(context)!.lain),
                       onTap: () {
                         Navigator.pushNamed(context, '/other');
                       },
