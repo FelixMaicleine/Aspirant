@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -109,16 +108,7 @@ class _CartState extends State<Cart> {
     return 0;
   }
 
-  void showNotification() {
-    AwesomeNotifications().createNotification(
-      content: NotificationContent(
-        id: 1,
-        channelKey: 'basic_channel',
-        title: 'Aspirant Fresh',
-        body: 'Pesanan Anda sedang diproses...',
-      ),
-    );
-  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -455,14 +445,8 @@ class _CartState extends State<Cart> {
                                       batch.delete(doc.reference);
                                     }
                                     await batch.commit();
-                                    showNotification();
+                                    
                                     Navigator.pushNamed(context, '/usrordr');
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          content: Text(
-                                              'Pesanan Anda berhasil diproses.'),
-                                              backgroundColor: Colors.green,),
-                                    );
                                   } catch (e) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(

@@ -13,6 +13,7 @@ import 'package:aspirant/pages/profile.dart';
 import 'package:aspirant/pages/rempah.dart';
 import 'package:aspirant/pages/sayur.dart';
 import 'package:aspirant/provider/bahasa.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
@@ -37,15 +38,29 @@ void requestNotificationPermission() async {
   }
 }
 
+void _showNotification(RemoteMessage message) {
+  AwesomeNotifications().createNotification(
+    content: NotificationContent(
+      id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      channelKey: 'basic_channel',
+      title: message.notification?.title ?? 'Notifikasi',
+      body: message.notification?.body ?? '',
+      notificationLayout: NotificationLayout.BigText,
+    ),
+  );
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await MobileAds.instance.initialize();
   await Firebase.initializeApp();
 
+
+  await FirebaseMessaging.instance.requestPermission();
   requestNotificationPermission();
 
   AwesomeNotifications().initialize(
-    'resource://drawable/appicon3', 
+    'resource://drawable/appicon3',
     [
       NotificationChannel(
         channelKey: 'basic_channel',
@@ -54,10 +69,14 @@ void main() async {
         defaultColor: Colors.teal,
         ledColor: Colors.white,
         channelShowBadge: true,
-        importance: NotificationImportance.Low,
+        importance: NotificationImportance.Max,
       )
     ],
   );
+
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    _showNotification(message);
+  });
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
@@ -71,7 +90,7 @@ void main() async {
         ChangeNotifierProvider(
           create: (context) => LocaleProvider()
             ..setLocale(
-              savedLanguageCode != null ? Locale(savedLanguageCode) : Locale('en'),
+              savedLanguageCode != null ? Locale(savedLanguageCode) : const Locale('en'),
             ),
         ),
       ],
@@ -100,17 +119,17 @@ class MyApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: [
-        const Locale('en'),
-        const Locale('id'),
-        const Locale('zh'),
+      supportedLocales: const [
+        Locale('en'),
+        Locale('id'),
+        Locale('zh'),
       ],
       locale: localeProvider.locale,
       title: 'My App',
       theme: ThemeData(
         brightness: Brightness.light,
         primarySwatch: Colors.green,
-        appBarTheme: AppBarTheme(
+        appBarTheme: const AppBarTheme(
           color: Colors.green,
         ),
       ),

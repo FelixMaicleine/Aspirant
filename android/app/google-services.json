@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "876431607211",
-    "project_id": "aspirant-d7d3b",
-    "storage_bucket": "aspirant-d7d3b.firebasestorage.app"
+    "project_number": "1064456795680",
+    "project_id": "heroic-builder-456800-t7",
+    "storage_bucket": "heroic-builder-456800-t7.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:876431607211:android:e5f7a39defa53800717eee",
+        "mobilesdk_app_id": "1:1064456795680:android:87c182d170d106d9d06e45",
         "android_client_info": {
-          "package_name": "com.example.aspirant"
+          "package_name": "sem6.cloud.aspirant"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAeZIefbrA7r3a6h7Q_U1yp7x1ntt0S51U"
+          "current_key": "AIzaSyBfvPdgnD09Ve6cUYr5Yo8h8yDkpZeZUlE"
         }
       ],
       "services": {

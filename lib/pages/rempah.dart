@@ -86,7 +86,7 @@ class _RempahState extends State<Rempah> {
                       crossAxisCount: 2,
                       crossAxisSpacing: 10,
                       mainAxisSpacing: 10,
-                      childAspectRatio: 3.3 / 4,
+                      childAspectRatio: 3.3 / 5,
                     ),
                     itemCount: snapshot.data!.length,
                     itemBuilder: (context, index) {

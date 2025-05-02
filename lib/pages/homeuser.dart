@@ -1,5 +1,6 @@
 import 'package:aspirant/models/modelstock.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
@@ -39,7 +40,21 @@ class _HomeUserState extends State<HomeUser> {
     _loadInterstitialAd();
     _loadUsername();
     _determineLocation();
+    _saveFcmToken();
   }
+
+  Future<void> _saveFcmToken() async {
+  String? token = await FirebaseMessaging.instance.getToken();
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? username = prefs.getString('username');
+
+  if (token != null && username != null) {
+    await FirebaseFirestore.instance
+        .collection('user_tokens')
+        .doc(username)
+        .set({'token': token});
+  }
+}
 
   void _loadBannerAd() {
     _bannerAd = BannerAd(
@@ -115,6 +130,8 @@ class _HomeUserState extends State<HomeUser> {
       _username = prefs.getString('username') ?? 'User';
     });
   }
+
+
 
   Future<void> _determineLocation() async {
   try {
@@ -334,7 +351,7 @@ class _HomeUserState extends State<HomeUser> {
                           crossAxisCount: 2,
                           crossAxisSpacing: 10,
                           mainAxisSpacing: 10,
-                          childAspectRatio: 2.8 / 4,
+                          childAspectRatio: 2.8 / 4.5,
                         ),
                         itemCount: snapshot.data!.length,
                         itemBuilder: (context, index) {
